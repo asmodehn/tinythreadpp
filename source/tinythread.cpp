@@ -151,6 +151,8 @@ struct _thread_start_info {
   void (*mFunction)(void *); ///< Pointer to the function to be executed.
   void * mArg;               ///< Function argument for the thread function.
   thread * mThread;          ///< Pointer to the thread object.
+  ///! TODO a mutex to protech mDetached?
+  bool mDetached;            ///< Is the thread object detached.
 };
 
 // Thread wrapper function.
@@ -176,8 +178,11 @@ void * thread::wrapper_function(void * aArg)
   }
 
   // The thread is no longer executing
-  lock_guard<mutex> guard(ti->mThread->mDataMutex);
-  ti->mThread->mNotAThread = true;
+  if (!ti->mDetached)
+  {
+    lock_guard<mutex> guard(ti->mThread->mDataMutex);
+    ti->mThread->mNotAThread = true;
+  }
 
   // The thread is responsible for freeing the startup information
   delete ti;
@@ -196,8 +201,10 @@ thread::thread(void (*aFunction)(void *), void * aArg)
   ti->mFunction = aFunction;
   ti->mArg = aArg;
   ti->mThread = this;
+  ti->mDetached = false;
 
   // The thread is now alive
+  mTI = ti;
   mNotAThread = false;
 
   // Create the thread
@@ -254,6 +261,7 @@ void thread::detach()
     pthread_detach(mHandle);
 #endif
     mNotAThread = true;
+    mTI->mDetached = true;
   }
   mDataMutex.unlock();
 }

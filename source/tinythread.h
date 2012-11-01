@@ -476,6 +476,8 @@ class condition_variable {
 #endif
 };
 
+/// Forward declaration
+struct _thread_start_info;
 
 /// Thread class.
 class thread {
@@ -554,6 +556,7 @@ class thread {
     native_handle_type mHandle;   ///< Thread handle.
     mutable mutex mDataMutex;     ///< Serializer for access to the thread private data.
     bool mNotAThread;             ///< True if this object is not a thread of execution.
+    _thread_start_info* mTI;      ///< Used for notifying the thread wrapper function of a thread object detachment.
 #if defined(_TTHREAD_WIN32_)
     unsigned int mWin32ThreadID;  ///< Unique thread ID (filled out by _beginthreadex).
 #endif
