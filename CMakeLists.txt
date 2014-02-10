@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.1)
 project(TinyThread++)
 
+find_package (Threads)
+
 # create the lib
 add_library(TinyThread++ STATIC "source/fast_mutex.h" "source/tinythread.h" "source/tinythread.cpp")
 include_directories(source)
@@ -9,6 +11,10 @@ include_directories(source)
 #add_executable(tt_TestFractal "test/fractal.cpp")
 #add_executable(tt_TestHello "test/hello.cpp")
 #add_executable(tt_Test "test/test.cpp")
+
+#target_link_libraries (tt_Test ${CMAKE_THREAD_LIBS_INIT})
+#target_link_libraries (tt_TestHello ${CMAKE_THREAD_LIBS_INIT})
+#target_link_libraries (tt_TestFractal ${CMAKE_THREAD_LIBS_INIT})
 
 # TODO : detect if this project is added from another project, or if it is the main solution ( to enable tests )
 #target_link_libraries(tt_TestFractal TinyThread++)
