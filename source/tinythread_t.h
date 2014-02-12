@@ -119,7 +119,7 @@ template< class thread_func_t >
 };
 
 template< typename thread_func_t >
-void threadt::init(thread_func_t func) {
+void threadt::init(thread_func_t aFunction) {
 
 	// Fill out the thread startup information (passed to the thread wrapper)
 	_thread_wrapper_t<thread_func_t> * tw = new _thread_wrapper_t<thread_func_t>(aFunction, aArg);
