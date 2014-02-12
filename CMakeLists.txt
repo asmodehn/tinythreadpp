@@ -125,15 +125,20 @@ if(ENABLE_TESTS)
 	add_executable(tt_Test "test/test.cpp")
 	target_link_libraries(tt_Test TinyThread++ ${CMAKE_THREAD_LIBS_INIT})
 
+	add_executable(tt_TestT "test/test_t.cpp")
+	target_link_libraries(tt_TestT TinyThread++ ${CMAKE_THREAD_LIBS_INIT})
+	
 	# turn on testing
 	enable_testing()
 	add_custom_target(tt_check COMMAND ${CMAKE_CTEST_COMMAND} -V)
 	
 	# add the test runner as a test
 	add_test(NAME tt_Test COMMAND Test)
+	add_test(NAME tt_TestT COMMAND TestT)
 	add_test(NAME tt_TestHello COMMAND TestHello)
 	add_test(NAME tt_TestFractal COMMAND TestFractal)
 	add_dependencies(tt_check Test)
+	add_dependencies(tt_check TestT)
 	add_dependencies(tt_check TestHello)
 	add_dependencies(tt_check TestFractal)
 

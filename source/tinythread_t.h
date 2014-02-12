@@ -21,6 +21,9 @@ freely, subject to the following restrictions:
     distribution.
 */
 
+//NOTE : This thread support different signature of functions.
+//However retrieving the result is not hte point of a thread.
+//To do so, futures need to be implemented
 
 #ifndef _TINYTHREAD_T_H_
 #define _TINYTHREAD_T_H_
@@ -55,8 +58,8 @@ public:
 #endif
 
 	template< typename thread_func_t >
-	threadt(thread_func_t func) : thread() {
-		init(func);
+	threadt(thread_func_t func, void * aArg) : thread() {
+		init(func, aArg);
 	}
 
 //be careful of move semantics
@@ -74,7 +77,7 @@ protected:
 	_TTHREAD_DISABLE_ASSIGNMENT(threadt);
 
 	template< typename thread_func_t >
-	void init(thread_func_t func);
+	void init(thread_func_t func, void * aArg);
 
 	/// Information shared between the thread wrapper and the thread object.
 	template< typename thread_func_t >
@@ -119,16 +122,16 @@ template< class thread_func_t >
 };
 
 template< typename thread_func_t >
-void threadt::init(thread_func_t aFunction) {
+void threadt::init(thread_func_t aFunction, void * aArg) {
 
 	// Fill out the thread startup information (passed to the thread wrapper)
 	_thread_wrapper_t<thread_func_t> * tw = new _thread_wrapper_t<thread_func_t>(aFunction, aArg);
 
 	// Create the thread
 #if defined(_TTHREAD_WIN32_)
-	mHandle = (HANDLE) _beginthreadex(0, 0, wrapper_function, (void *) tw, 0, &mWin32ThreadID);
+	mHandle = (HANDLE) _beginthreadex(0, 0, wrapper_function<thread_func_t>, (void *) tw, 0, &mWin32ThreadID);
 #elif defined(_TTHREAD_POSIX_)
-	if(pthread_create(&mHandle, NULL, wrapper_function, (void *) tw) != 0)
+	if(pthread_create(&mHandle, NULL, wrapper_function<thread_func_t>, (void *) tw) != 0)
 		mHandle = 0;
 #endif
 
@@ -151,7 +154,7 @@ void * threadt::wrapper_function(void * aArg)
 #endif
 {
   // Get thread wrapper information
-  _thread_wrapper<thread_func_t> * tw = (_thread_wrapper<thread_func_t> *) aArg;
+  _thread_wrapper_t<thread_func_t> * tw = (_thread_wrapper_t<thread_func_t> *) aArg;
 
   try
   {
