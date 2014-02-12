@@ -21,6 +21,11 @@ freely, subject to the following restrictions:
     distribution.
 */
 
+/*
+Modified (m) 2011 Jared Duke
+ ** Added support for lambdas/function objects via generic std::function compatible arguments
+*/
+
 #ifndef _TINYTHREAD_H_
 #define _TINYTHREAD_H_
 
@@ -87,6 +92,7 @@ freely, subject to the following restrictions:
 
 // Generic includes
 #include <ostream>
+#include <memory>
 
 /// TinyThread++ version (major number).
 #define TINYTHREAD_VERSION_MAJOR 1
@@ -98,16 +104,26 @@ freely, subject to the following restrictions:
 // Do we have a fully featured C++11 compiler?
 #if (__cplusplus > 199711L) || (defined(__STDCXX_VERSION__) && (__STDCXX_VERSION__ >= 201001L))
   #define _TTHREAD_CPP11_
+	#define _TTHREAD_FUNCTIONAL_
+	#define _TTHREAD_RVALUES_
+	#include <functional>
 #endif
 
 // ...at least partial C++11?
 #if defined(_TTHREAD_CPP11_) || defined(__GXX_EXPERIMENTAL_CXX0X__) || defined(__GXX_EXPERIMENTAL_CPP0X__)
   #define _TTHREAD_CPP11_PARTIAL_
+//TODO : support functional on partial implementation
 #endif
 
 // Do we have atomic builtins?
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1))
   #define _TTHREAD_HAS_ATOMIC_BUILTINS_
+#endif
+
+#if defined(_TTHREAD_FUNCTIONAL_)
+  typedef std::function<void(void*)> thread_func;
+#else
+  typedef void (*thread_func)(void *);
 #endif
 
 // Check if we can support the assembly language atomic operations?
@@ -824,16 +840,37 @@ class thread {
     , mWin32ThreadID(0)
 #endif
     {}
+	
+	//NEW MERGE : thread();
 
-    /// Thread starting constructor.
-    /// Construct a @c thread object with a new thread of execution.
-    /// @param[in] aFunction A function pointer to a function of type:
-    ///          <tt>void fun(void * arg)</tt>
-    /// @param[in] aArg Argument to the thread function.
-    /// @note This constructor is not fully compatible with the standard C++
-    /// thread class. It is more similar to the pthread_create() (POSIX) and
-    /// CreateThread() (Windows) functions.
-    thread(void (*aFunction)(void *), void * aArg);
+#if defined(_TTHREAD_RVALUES_)
+
+	/// Move constructor.
+	/// Construct a \c thread object from an existing thread object
+	thread(thread&& other) {
+		*this = std::move(other);
+	}
+
+	thread& operator=(thread&& other) {
+		swap(std::move(other));
+		return *this;
+	}
+
+	void swap(thread&& other) {
+		std::swap(mData, other.mData);
+	}
+	
+#endif
+	
+	/// Thread starting constructor.
+	/// Construct a @c thread object with a new thread of execution.
+	/// @param[in] thread_func A function pointer to a function of type:
+	///          <tt>void fun(void * arg)</tt>
+	/// @param[in] aArg Argument to the thread function.
+	/// @note This constructor is not fully compatible with the standard C++
+	/// thread class. It is more similar to the pthread_create() (POSIX) and
+	/// CreateThread() (Windows) functions.
+	thread(thread_func func, void * aArg);
 
     /// Destructor.
     /// @note If the thread is joinable upon destruction, @c std::terminate()
