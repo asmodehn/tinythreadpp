@@ -1,5 +1,10 @@
 /* -*- mode: c++; tab-width: 2; indent-tabs-mode: nil; -*-
 Copyright (c) 2010-2012 Marcus Geelnard
+Modified 2011 Jared Duke
+  **Added support for lambdas
+Modified 2014 AlexV
+  **Merged.
+
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any damages
@@ -149,7 +154,7 @@ static thread::id _pthread_t_to_ID(const pthread_t &aHandle)
 /// Information shared between the thread wrapper and the thread object.
 class _thread_wrapper {
   public:
-    _thread_wrapper(void (*aFunction)(void *), void * aArg) :
+    _thread_wrapper(thread_func aFunction, void * aArg) :
       mFunction(aFunction),
       mArg(aArg),
       mRefCount(2)      // Upon creation the object is referenced by two
@@ -173,7 +178,7 @@ class _thread_wrapper {
     }
 
   private:
-    void (*mFunction)(void *);  // Pointer to the function to be executed
+    thread_func mFunction;		// Pointer to the function to be executed
     void * mArg;                // Function argument for the thread function
     atomic_int mRefCount;       // Reference count
 };
@@ -209,7 +214,7 @@ void * thread::wrapper_function(void * aArg)
   return 0;
 }
 
-thread::thread(void (*aFunction)(void *), void * aArg)
+thread::thread(thread_func aFunction, void * aArg)
 {
   // Fill out the thread startup information (passed to the thread wrapper)
   _thread_wrapper * tw = new _thread_wrapper(aFunction, aArg);
