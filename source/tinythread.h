@@ -915,7 +915,7 @@ class thread {
 
     _TTHREAD_DISABLE_ASSIGNMENT(thread)
 
-  private:
+  protected:
     native_handle_type mHandle;   ///< Thread handle.
     void * mWrapper;              ///< Thread wrapper info.
 #if defined(_TTHREAD_WIN32_)
@@ -1071,8 +1071,5 @@ namespace this_thread {
 }
 
 }
-
-// Define/macro cleanup
-#undef _TTHREAD_DISABLE_ASSIGNMENT
 
 #endif // _TINYTHREAD_H_
