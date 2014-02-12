@@ -54,7 +54,7 @@ int main() {
 #if defined(USE_CONTINUATIONS)
 	try {
 		cout << "f(g0(g1(g2(g3()))) = 1*(2*(3*(4*(5)))) = " <<
-		async([]() {
+		tthread::async([]() {
 			return 5;
 		}).then([](int x) {
 			return x * 4;

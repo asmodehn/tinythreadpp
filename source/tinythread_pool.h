@@ -76,7 +76,8 @@ private:
 
 	// TODO: Add lock for concurrent access from producers
 	FunctionQueuePtr     mFunctionQueue;
-	std::vector<threadt> mThreads;
+	//using vector here because threads are noncopyable
+	std::vector<threadt*> mThreads;
 };
 
 ///////////////////////////////////////////////////////////////////////////

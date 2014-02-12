@@ -389,7 +389,7 @@ public:
 
 	explicit packaged_task_impl(R(*f)(Arg)) : mFunc(f) { }
 	template < typename F >
-	explicit packaged_task_impl(F f)        : mFunc(std::move(f)) { }
+	explicit packaged_task_impl(F f)        : mFunc(f) { }
 
 	///////////////////////////////////////////////////////////////////////////
 	// move support
@@ -440,7 +440,13 @@ protected:
 	}
 
 	mutable future_mutex  mLock;
+
+#if defined(_TTHREAD_FUNCTIONAL_)
 	std::function<R(Arg)> mFunc;
+#else
+	R (*mFunc)(Arg);
+#endif
+
 	async_result_ptr      mResult;
 };
 

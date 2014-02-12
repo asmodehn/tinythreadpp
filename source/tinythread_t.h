@@ -44,22 +44,29 @@ class threadt : public thread {
 public:
 
 	threadt() : thread() { }
+
+#if defined(_TTHREAD_RVALUES_)
 	threadt(threadt&& other) : thread(std::move(other)) { }
+
 	threadt& operator=(threadt&& other) { 
 		thread::swap(std::move(other)); 
 		return *this;
 	}
+#endif
 
 	template< typename thread_func_t >
 	threadt(thread_func_t func) : thread() {
-		init(std::move(func));
+		init(func);
 	}
 
+//be careful of move semantics
+#if defined(_TTHREAD_RVALUES_)
 #if defined(_TTHREAD_VARIADIC_)
 	template< typename thread_func_t, typename Args... >
 	threadt(thread_func_t func, Args... args) : thread() {
 		init(std::bind(std::move(func), std::move(args)...));
 	}
+#endif
 #endif
 
 protected:
@@ -69,15 +76,40 @@ protected:
 	template< typename thread_func_t >
 	void init(thread_func_t func);
 
+	/// Information shared between the thread wrapper and the thread object.
 	template< typename thread_func_t >
-	struct _thread_start_info_t {
-		thread_func_t    mFunction;   ///< Handle to the function to be executed.
-		thread::data_ptr mThreadData; ///< Pointer to the thread data.
-		_thread_start_info_t(thread_func_t&& func, thread::data_ptr threadData)
-			: mFunction(std::move(func)), mThreadData(threadData) { }
+	class _thread_wrapper_t {
+	  public:
+		_thread_wrapper_t(thread_func_t aFunction, void * aArg) :
+		  mFunction(aFunction),
+		  mArg(aArg),
+		  mRefCount(2)      // Upon creation the object is referenced by two
+							// instances: the thread object and the thread wrapper
+		{
+		}
+
+		inline void run()
+		{
+		  mFunction(mArg);
+		}
+
+		inline bool joinable() const
+		{
+		  return mRefCount > 1;
+		}
+
+		inline bool release()
+		{
+		  return !(--mRefCount);
+		}
+
+	  private:
+		thread_func_t mFunction;	// Pointer to the function to be executed
+		void * mArg;                // Function argument for the thread function
+		atomic_int mRefCount;       // Reference count
 	};
 
-	template< class thread_func_t >
+template< class thread_func_t >
 #if defined(_TTHREAD_WIN32_)
 	static unsigned WINAPI wrapper_function(void* aArg);
 #elif defined(_TTHREAD_POSIX_)
@@ -88,60 +120,60 @@ protected:
 
 template< typename thread_func_t >
 void threadt::init(thread_func_t func) {
-	// Serialize access to this thread structure
-	lock_guard<mutex> guard(mData->mMutex);
 
-	// Fill out the thread startup information (passed to the thread wrapper,
-	// which will eventually free it)
-	typedef _thread_start_info_t<thread_func_t> thread_info;
-	std::unique_ptr<thread_info> ti( new thread_info(std::move(func), mData) );
-
-	thread_data& data = *mData;
-
-	// The thread is now alive
-	data.mNotAThread = false;
+	// Fill out the thread startup information (passed to the thread wrapper)
+	_thread_wrapper_t<thread_func_t> * tw = new _thread_wrapper_t<thread_func_t>(aFunction, aArg);
 
 	// Create the thread
 #if defined(_TTHREAD_WIN32_)
-	data.mHandle = (HANDLE) _beginthreadex(0, 0, wrapper_function<thread_func_t>, (void*) ti.get(), 0, &data.mWin32ThreadID);
+	mHandle = (HANDLE) _beginthreadex(0, 0, wrapper_function, (void *) tw, 0, &mWin32ThreadID);
 #elif defined(_TTHREAD_POSIX_)
-	if (pthread_create(&data.mHandle, NULL, wrapper_function<thread_func_t>, (void*) ti.get()) != 0)
-		data.mHandle = 0;
+	if(pthread_create(&mHandle, NULL, wrapper_function, (void *) tw) != 0)
+		mHandle = 0;
 #endif
 
 	// Did we fail to create the thread?
-	if (!data.mHandle) {
-		data.mNotAThread = true;
-	} else {
-		// Release ownership of the thread info object
-		ti.release();
+	if(!mHandle)
+	{
+	delete tw;
+	tw = 0;
 	}
+
+	mWrapper = (void *) tw;
 }
 
+// Thread wrapper function.
 template< class thread_func_t >
 #if defined(_TTHREAD_WIN32_)
-unsigned WINAPI threadt::wrapper_function(void* aArg)
+unsigned WINAPI threadt::wrapper_function(void * aArg)
 #elif defined(_TTHREAD_POSIX_)
-void* threadt::wrapper_function(void* aArg)
+void * threadt::wrapper_function(void * aArg)
 #endif
 {
-	typedef _thread_start_info_t<thread_func_t> thread_info;
+  // Get thread wrapper information
+  _thread_wrapper<thread_func_t> * tw = (_thread_wrapper<thread_func_t> *) aArg;
 
-	// Get thread startup information
-	std::unique_ptr<thread_info> ti((thread_info*)aArg);
+  try
+  {
+    // Call the actual client thread function
+    tw->run();
+  }
+  catch(...)
+  {
+    // Uncaught exceptions will terminate the application (default behavior
+    // according to C++11)
+    std::terminate();
+  }
 
-	try {
-		ti->mFunction();
-	} catch (...) {
-		std::terminate();
-	}
+  // The thread is no longer executing
+  if(tw->release())
+  {
+    delete tw;
+  }
 
-	lock_guard<mutex> guard(ti->mThreadData->mMutex);
-	ti->mThreadData->mNotAThread = true;
-
-	return 0;
+  return 0;
 }
 
-}
+} //namespace tthread
 
 #endif // _TINYTHREAD_T_H_

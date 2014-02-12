@@ -33,7 +33,7 @@ thread_pool::thread_pool( unsigned thread_count )
 	FunctionQueuePtr q = mFunctionQueue;
 
 	for (unsigned i = 0; i < thread_count; ++i) {
-		mThreads.emplace_back( threadt( [=]() {
+		mThreads.emplace_back( new threadt( [=]() {
 			Function f;
 			while (q->wait_and_pop(f)) {
 #if defined(NO_GENERIC_POOL)
@@ -50,5 +50,8 @@ thread_pool::thread_pool( unsigned thread_count )
 tthread::thread_pool::~thread_pool() {
 	mFunctionQueue->destroy();
 	for (size_t i = 0; i < mThreads.size(); ++i)
-		mThreads[i].join();
+	{
+		mThreads[i]->join();
+		delete mThreads[i],mThreads[i]=0;
+	}
 }
