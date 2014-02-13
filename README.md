@@ -48,12 +48,12 @@ Using TinyThread++
 To use TinyThread++ in your own project, just add tinythread.cpp and
 tinythread.h to your project. In your own code, do:
 
-#include <tinythread.h>
-using namespace tthread;
+    #include <tinythread.h>
+    using namespace tthread;
 
 If you wish to use the fast_mutex class, inlude fast_mutex.h:
 
-#include <fast_mutex.h>
+    #include <fast_mutex.h>
 
 
 Building the test programs
@@ -62,13 +62,16 @@ Building the test programs
 From the test folder, issue one of the following commands:
 
 Linux, Mac OS X, OpenSolaris etc:
-  make (you may need to use gmake on some systems)
+
+    make (you may need to use gmake on some systems)
 
 Windows/MinGW:
-  mingw32-make
+
+    mingw32-make
 
 Windows/MS Visual Studio:
-  nmake /f Makefile.msvc
+
+    nmake /f Makefile.msvc
 
 
 License
@@ -84,13 +87,13 @@ Permission is granted to anyone to use this software for any purpose,
 including commercial applications, and to alter it and redistribute it
 freely, subject to the following restrictions:
 
-    1. The origin of this software must not be misrepresented; you must not
-    claim that you wrote the original software. If you use this software
-    in a product, an acknowledgment in the product documentation would be
-    appreciated but is not required.
+  1. The origin of this software must not be misrepresented; you must not
+  claim that you wrote the original software. If you use this software
+  in a product, an acknowledgment in the product documentation would be
+  appreciated but is not required.
 
-    2. Altered source versions must be plainly marked as such, and must not be
-    misrepresented as being the original software.
+  2. Altered source versions must be plainly marked as such, and must not be
+  misrepresented as being the original software.
 
-    3. This notice may not be removed or altered from any source
-    distribution.
+  3. This notice may not be removed or altered from any source
+  distribution.
