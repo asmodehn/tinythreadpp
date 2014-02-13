@@ -107,7 +107,7 @@ int ThreadSpinLock(void * aArg)
 }
 
 // Thread function: Atomic count
-tthread::atomic_int ThreadAtomicCount(void * aArg)
+int ThreadAtomicCount(void * aArg)
 {
   for(int i = 0; i < 10000; ++ i)
   {
