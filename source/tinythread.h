@@ -858,7 +858,11 @@ class thread {
 	}
 
 	void swap(thread&& other) {
-		std::swap(mData, other.mData);
+		std::swap(mHandle, other.mHandle);
+		std::swap(mWrapper, other.mWrapper);
+#if defined(_TTHREAD_WIN32_)
+		std::swap(mWin32ThreadID, other.mWin32ThreadID);
+#endif
 	}
 	
 #endif
