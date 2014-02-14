@@ -139,6 +139,7 @@ Modified (m) 2011 Jared Duke
       name(const name&) = delete; \
       name& operator=(const name&) = delete;
 #else
+  //TODO : This alone does not disable in C++ 03. TOFIX -> no macros.
   #define _TTHREAD_DISABLE_ASSIGNMENT(name) \
       name(const name&); \
       name& operator=(const name&);

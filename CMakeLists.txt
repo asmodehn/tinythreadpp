@@ -105,7 +105,6 @@ add_library(TinyThread++ STATIC
 	"source/fast_mutex.h"
 	"source/tinythread.h" 
 	"source/tinythread.cpp"
-	"source/tinythread_t.h"
 )
 
 include_directories(source)
@@ -124,9 +123,6 @@ if(ENABLE_TESTS)
 	
 	add_executable(tt_Test "test/test.cpp")
 	target_link_libraries(tt_Test TinyThread++ ${CMAKE_THREAD_LIBS_INIT})
-
-	add_executable(tt_TestT "test/test_t.cpp")
-	target_link_libraries(tt_TestT TinyThread++ ${CMAKE_THREAD_LIBS_INIT})
 	
 	# turn on testing
 	enable_testing()
@@ -134,11 +130,9 @@ if(ENABLE_TESTS)
 	
 	# add the test runner as a test
 	add_test(NAME tt_Test COMMAND Test)
-	add_test(NAME tt_TestT COMMAND TestT)
 	add_test(NAME tt_TestHello COMMAND TestHello)
 	add_test(NAME tt_TestFractal COMMAND TestFractal)
 	add_dependencies(tt_check Test)
-	add_dependencies(tt_check TestT)
 	add_dependencies(tt_check TestHello)
 	add_dependencies(tt_check TestFractal)
 
