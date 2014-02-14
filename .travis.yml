@@ -1,0 +1,17 @@
+language: cpp
+compiler:
+ - clang
+ - gcc
+install: 
+branches:
+ only:
+  - master
+notifications:
+ recipients:
+  - asmodehn@gmail.com
+ email:
+  on_success: change
+  on_failure: always
+script: "./build.sh"
+
+  
