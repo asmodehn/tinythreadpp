@@ -2,15 +2,16 @@ TinyThread++ Fork
 =================
 
 [TinyThread++](https://gitorious.org/tinythread) is a lightweight and portable C++ threading library.
+
 This repository is a simple fork of the project to keep doing maintenance on it for [WkCore](https://github.com/asmodehn/WkCore) needs.
 
-As TinyThread++, this project should remain compatible with old compilers, namely VS 2010, for use of Thread Objects when the compiler does not have the C++11 conform std::bind function ( and cannot easily support passing a Functor as the Thread function ).
+As TinyThread++, this project should remain compatible with old compilers, namely older than VS 2012, for use of Thread Objects when the compiler does not have the C++11 conform std::bind function ( and cannot easily support passing a Functor as the Thread function ).
 
 Also to keep it lightweight, a very simple CMakeLists is used here ( and not the full fledged WkCMake ).
 Original Makefile is still there if you need it.
 Unit Tests are made with simplified custom unit test code ( and not a full fledged unit test library ).
 
-TinyThread++ shoud still be cross-platform as much as possible. Current targets are :
+TinyThread++ should still be cross-platform as much as possible. Current targets are :
 
 - Windows
 - Linux
