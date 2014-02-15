@@ -1,7 +1,7 @@
 #!/bin/sh
 
 BUILD_DIR="build"
-SRC_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SRC_DIR="$( cd "$( dirname "$0" )" && pwd )"
 BUILD_TYPE=Release
 ENABLE_TESTS=ON
 
@@ -14,7 +14,8 @@ echo "Running in $SRC_DIR :"
 cmake $SRC_DIR
 
 make
-
-ctest
+#Disabling ctest for now, as the test are not build by default
+#The reason is that if tinythreadpp is included as dependency, the tests are not needed.
+#ctest
 
  
