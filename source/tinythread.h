@@ -23,7 +23,7 @@ freely, subject to the following restrictions:
 
 /*
 Modified (m) 2011 Jared Duke
- ** Added support for lambdas/function objects via generic std::function compatible arguments
+ ** Added support for lambdas/function objects via generic ustd::function compatible arguments
 */
 
 #ifndef _TINYTHREAD_H_
@@ -37,7 +37,7 @@ Modified (m) 2011 Jared Duke
 /// classes for C++.
 ///
 /// They closely mimic the functionality and naming of the C++11 standard, and
-/// should be easily replaceable with the corresponding std:: variants.
+/// should be easily replaceable with the corresponding ustd:: variants.
 ///
 /// @section port_sec Portability
 /// The Win32 variant uses the native Win32 API for implementing the thread
@@ -91,8 +91,14 @@ Modified (m) 2011 Jared Duke
 #endif
 
 // Generic includes
+#ifdef USE_USTL
+#include <ustl.h>
+namespace ustd=ustl;
+#else
 #include <ostream>
 #include <memory>
+namespace ustd=std;
+#endif // USE_USTL
 
 /// TinyThread++ version (major number).
 #define TINYTHREAD_VERSION_MAJOR 1
@@ -104,9 +110,11 @@ Modified (m) 2011 Jared Duke
 // Do we have a fully featured C++11 compiler?
 #if (__cplusplus > 199711L) || (defined(__STDCXX_VERSION__) && (__STDCXX_VERSION__ >= 201001L))
   #define _TTHREAD_CPP11_
+	#ifndef USE_USTL
 	#define _TTHREAD_FUNCTIONAL_
 	#define _TTHREAD_RVALUES_
 	#include <functional>
+	#endif
 #endif
 
 // ...at least partial C++11?
@@ -121,7 +129,7 @@ Modified (m) 2011 Jared Duke
 #endif
 
 #if defined(_TTHREAD_FUNCTIONAL_)
-  typedef std::function<void(void*)> thread_func;
+  typedef ustd::function<void(void*)> thread_func;
 #else
   typedef void (*thread_func)(void *);
 #endif
@@ -178,7 +186,7 @@ Modified (m) 2011 Jared Duke
 /// Main name space for TinyThread++.
 /// This namespace is more or less equivalent to the @c std namespace for the
 /// C++11 thread classes. For instance, the tthread::mutex class corresponds to
-/// the std::mutex class.
+/// the ustd::mutex class.
 namespace tthread {
 
 /// Mutex class.
@@ -841,7 +849,7 @@ class thread {
     , mWin32ThreadID(0)
 #endif
     {}
-	
+
 	//NEW MERGE : thread();
 
 #if defined(_TTHREAD_RVALUES_)
@@ -849,24 +857,24 @@ class thread {
 	/// Move constructor.
 	/// Construct a \c thread object from an existing thread object
 	thread(thread&& other) {
-		*this = std::move(other);
+		*this = ustd::move(other);
 	}
 
 	thread& operator=(thread&& other) {
-		swap(std::move(other));
+		swap(ustd::move(other));
 		return *this;
 	}
 
 	void swap(thread&& other) {
-		std::swap(mHandle, other.mHandle);
-		std::swap(mWrapper, other.mWrapper);
+		ustd::swap(mHandle, other.mHandle);
+		ustd::swap(mWrapper, other.mWrapper);
 #if defined(_TTHREAD_WIN32_)
-		std::swap(mWin32ThreadID, other.mWin32ThreadID);
+		ustd::swap(mWin32ThreadID, other.mWin32ThreadID);
 #endif
 	}
-	
+
 #endif
-	
+
 	/// Thread starting constructor.
 	/// Construct a @c thread object with a new thread of execution.
 	/// @param[in] thread_func A function pointer to a function of type:
@@ -878,7 +886,7 @@ class thread {
 	thread(thread_func func, void * aArg);
 
     /// Destructor.
-    /// @note If the thread is joinable upon destruction, @c std::terminate()
+    /// @note If the thread is joinable upon destruction, @c ustd::terminate()
     /// will be called, which terminates the process. It is always wise to do
     /// @c join() before deleting a thread object.
     virtual ~thread();
@@ -985,11 +993,16 @@ class thread::id {
       return (aId1.mId > aId2.mId);
     }
 
-    inline friend std::ostream& operator <<(std::ostream &os, const id &obj)
+    inline friend ustd::ostream& operator <<(ustd::ostream &os, const id &obj)
     {
       os << obj.mId;
       return os;
     }
+
+#ifdef USE_USTL
+    inline void text_write (ustd::ostringstream& os) const
+	{ os.iwrite (mId); }
+#endif // USE_USTL
 
   private:
     unsigned long int mId;
