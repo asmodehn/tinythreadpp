@@ -21,10 +21,15 @@ freely, subject to the following restrictions:
     distribution.
 */
 
+#ifdef USE_USTL
+#include <ustl.h>
+using namespace ustl;
+#else
 #include <iostream>
+using namespace std;
+#endif // USE_USTL
 #include <tinythread.h>
 
-using namespace std;
 using namespace tthread;
 
 

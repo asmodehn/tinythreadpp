@@ -30,9 +30,9 @@ endif
 
 # Compiler settings
 CPP = g++
-CPPFLAGS = -W -O3 -c -I../source
-LFLAGS =
-LIBS =
+CPPFLAGS += -W -O3 -c -I../source
+LFLAGS +=
+LIBS +=
 
 # Non-windows systems need pthread
 ifndef WINDOWS
