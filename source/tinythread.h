@@ -93,11 +93,11 @@ Modified (m) 2011 Jared Duke
 // Generic includes
 #ifdef USE_USTL
 #include <ustl.h>
-namespace ustd=ustl;
+namespace nw=ustl;
 #else
 #include <ostream>
 #include <memory>
-namespace ustd=std;
+namespace nw=std;
 #endif // USE_USTL
 
 /// TinyThread++ version (major number).
@@ -129,7 +129,7 @@ namespace ustd=std;
 #endif
 
 #if defined(_TTHREAD_FUNCTIONAL_)
-  typedef ustd::function<void(void*)> thread_func;
+  typedef nw::function<void(void*)> thread_func;
 #else
   typedef void (*thread_func)(void *);
 #endif
@@ -186,7 +186,7 @@ namespace ustd=std;
 /// Main name space for TinyThread++.
 /// This namespace is more or less equivalent to the @c std namespace for the
 /// C++11 thread classes. For instance, the tthread::mutex class corresponds to
-/// the ustd::mutex class.
+/// the std::mutex class.
 namespace tthread {
 
 /// Mutex class.
@@ -818,6 +818,7 @@ struct atomic {
     volatile T mValue;
 };
 
+
 typedef atomic<char>               atomic_char;   ///< Specialized atomic for type char.
 typedef atomic<signed char>        atomic_schar;  ///< Specialized atomic for type signed char.
 typedef atomic<unsigned char>      atomic_uchar;  ///< Specialized atomic for type unsigned char.
@@ -857,19 +858,19 @@ class thread {
 	/// Move constructor.
 	/// Construct a \c thread object from an existing thread object
 	thread(thread&& other) {
-		*this = ustd::move(other);
+		*this = nw::move(other);
 	}
 
 	thread& operator=(thread&& other) {
-		swap(ustd::move(other));
+		swap(nw::move(other));
 		return *this;
 	}
 
 	void swap(thread&& other) {
-		ustd::swap(mHandle, other.mHandle);
-		ustd::swap(mWrapper, other.mWrapper);
+		nw::swap(mHandle, other.mHandle);
+		nw::swap(mWrapper, other.mWrapper);
 #if defined(_TTHREAD_WIN32_)
-		ustd::swap(mWin32ThreadID, other.mWin32ThreadID);
+		nw::swap(mWin32ThreadID, other.mWin32ThreadID);
 #endif
 	}
 
@@ -886,7 +887,7 @@ class thread {
 	thread(thread_func func, void * aArg);
 
     /// Destructor.
-    /// @note If the thread is joinable upon destruction, @c ustd::terminate()
+    /// @note If the thread is joinable upon destruction, @c nw::terminate()
     /// will be called, which terminates the process. It is always wise to do
     /// @c join() before deleting a thread object.
     virtual ~thread();
@@ -993,14 +994,14 @@ class thread::id {
       return (aId1.mId > aId2.mId);
     }
 
-    inline friend ustd::ostream& operator <<(ustd::ostream &os, const id &obj)
+    inline friend nw::ostream& operator <<(nw::ostream &os, const id &obj)
     {
       os << obj.mId;
       return os;
     }
 
 #ifdef USE_USTL
-    inline void text_write (ustd::ostringstream& os) const
+    inline void text_write (nw::ostringstream& os) const
 	{ os.iwrite (mId); }
 #endif // USE_USTL
 

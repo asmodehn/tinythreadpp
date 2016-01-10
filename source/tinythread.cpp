@@ -131,7 +131,7 @@ void condition_variable::notify_all()
 
 //------------------------------------------------------------------------------
 // POSIX pthread_t to unique thread::id mapping logic.
-// Note: Here we use a global thread safe ustd::map to convert instances of
+// Note: Here we use a global thread safe nw::map to convert instances of
 // pthread_t to small thread identifier numbers (unique within one process).
 // This method should be portable across different POSIX implementations.
 //------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ void condition_variable::notify_all()
 static thread::id _pthread_t_to_ID(const pthread_t &aHandle)
 {
   static mutex idMapLock;
-  static ustd::map<pthread_t, unsigned long int> idMap;
+  static nw::map<pthread_t, unsigned long int> idMap;
   static unsigned long int idCount(1);
 
   lock_guard<mutex> guard(idMapLock);
@@ -254,7 +254,7 @@ thread::~thread()
   else
   {
     // If the thread wrapper was not released, the thread is still joinable,
-    // which should result in ustd::terminate() upon destruction according to
+    // which should result in nw::terminate() upon destruction according to
     // spec.
     std::terminate();
   }
