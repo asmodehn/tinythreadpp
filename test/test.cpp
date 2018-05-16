@@ -21,12 +21,17 @@ freely, subject to the following restrictions:
     distribution.
 */
 
+#ifdef USE_USTL
+#include <ustl.h>
+using namespace ustl;
+#else
 #include <iostream>
 #include <list>
+using namespace std;
+#endif // USE_USTL
 #include <tinythread.h>
 #include <fast_mutex.h>
 
-using namespace std;
 using namespace tthread;
 
 // HACK: Mac OS X and early MinGW do not support thread-local storage

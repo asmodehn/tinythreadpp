@@ -1,0 +1,7 @@
+MyPrefix=$HOME/local
+#CPPFLAGS="-DUSE_USTL=1 -I$MyPrefix/include -std=c++11"
+CPPFLAGS="-DUSE_USTL=1 -DNO_USTL_ATOMIC=1 \
+    -I$MyPrefix/include -std=c++11" \
+    LFLAGS="-L$MyPrefix/lib" \
+    LIBS="-lustl" \
+    make
