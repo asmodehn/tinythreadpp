@@ -1,4 +1,12 @@
-cmake_minimum_required(VERSION 2.8.1)
+cmake_minimum_required(VERSION 3.7.1)
+
+include("cmake/HunterGate.cmake")
+
+HunterGate(
+        URL "https://github.com/ruslo/hunter/archive/v0.20.79.tar.gz"
+        SHA1 "428c555b2205ce6aa94707a97c18be7afebecee2"
+)
+
 project(TinyThread++)
 
 find_package (Threads)
@@ -19,7 +27,6 @@ endif()
 
 set(tthread_BINARY_PATH ${CMAKE_HOME_DIRECTORY}/bin/${tthread_SIZE_TYPE}${tthread_SUFFIX})
 
-#TODO : Simplify all this, or use WkCMake.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
     ${tthread_BINARY_PATH}
     CACHE PATH
@@ -132,8 +139,8 @@ if(ENABLE_TESTS)
 	add_test(NAME tt_Test COMMAND Test)
 	add_test(NAME tt_TestHello COMMAND TestHello)
 	add_test(NAME tt_TestFractal COMMAND TestFractal)
-	add_dependencies(tt_check Test)
-	add_dependencies(tt_check TestHello)
-	add_dependencies(tt_check TestFractal)
+	add_dependencies(tt_check tt_Test)
+	add_dependencies(tt_check tt_TestHello)
+	add_dependencies(tt_check tt_TestFractal)
 
 endif(ENABLE_TESTS)
